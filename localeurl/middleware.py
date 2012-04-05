@@ -37,6 +37,8 @@ class LocaleURLMiddleware(object):
             raise django.core.exceptions.MiddlewareNotUsed()
 
     def process_request(self, request):
+        hostname = request.get_host()
+
         locale, path = utils.strip_path(request.path_info)
         if localeurl_settings.USE_SESSION and not locale:
             slocale = request.session.get('django_language')
@@ -51,7 +53,7 @@ class LocaleURLMiddleware(object):
                 )
             if accept_langs:
                 locale = accept_langs[0]
-        locale_path = utils.locale_path(path, locale)
+        locale_path = utils.locale_path(path, locale, host = hostname)
         # locale case might be different in the two paths, that doesn't require
         # a redirect (besides locale they'll be identical anyway)
         if locale_path.lower() != request.path_info.lower():

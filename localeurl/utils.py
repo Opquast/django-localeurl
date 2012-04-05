@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core import urlresolvers
 from localeurl import settings as localeurl_settings
+from django.core.urlresolvers import get_urlconf
 
 def is_locale_independent(path):
     """
@@ -18,6 +19,24 @@ def is_locale_independent(path):
         if regex.search(path):
             return True
     return False
+
+def is_host_independent(host):
+    """
+    Returns whether the host is locale-independent.
+    """
+    deactivated = True
+    if host in localeurl_settings.LOCALE_DEPENDENT_HOSTS:
+        deactivated = False
+    return deactivated
+
+def is_urlconf_independent(urlconf):
+    """
+    Returns whether the urlconf is locale-independent.
+    """
+    deactivated = True
+    if urlconf in localeurl_settings.LOCALE_DEPENDENT_URLCONFS:
+        deactivated = False
+    return deactivated
 
 def strip_path(path):
     """
@@ -49,7 +68,7 @@ def is_default_locale(locale):
     """
     return locale == supported_language(settings.LANGUAGE_CODE)
 
-def locale_path(path, locale=''):
+def locale_path(path, locale='', host=None, urlconf=None):
     """
     Generate the localeurl-enabled path from a path without locale prefix. If
     the locale is empty settings.LANGUAGE_CODE is used.
@@ -57,34 +76,40 @@ def locale_path(path, locale=''):
     locale = supported_language(locale)
     if not locale:
         locale = supported_language(settings.LANGUAGE_CODE)
-    if is_locale_independent(path):
+    if is_host_independent(host) and is_urlconf_independent(urlconf):
+        return path
+    elif is_locale_independent(path):
         return path
     elif is_default_locale(locale) and not localeurl_settings.PREFIX_DEFAULT_LOCALE:
         return path
     else:
         return ''.join([u'/', locale, path])
 
-def locale_url(path, locale=''):
+def locale_url(path, locale='', host=None, prefix='', urlconf=None):
     """
     Generate the localeurl-enabled URL from a path without locale prefix. If
     the locale is empty settings.LANGUAGE_CODE is used.
     """
-    path = locale_path(path, locale)
-    return add_script_prefix(path)
+    if urlconf is None:
+        urlconf = get_urlconf()
 
-def strip_script_prefix(url):
+    path = locale_path(path, locale, host=host, urlconf=urlconf)
+    return add_script_prefix(path, prefix=prefix)
+
+def strip_script_prefix(url, prefix = None):
     """
     Strips the SCRIPT_PREFIX from the URL. Because this function is meant for
     use in templates, it assumes the URL starts with the prefix.
     """
-    assert url.startswith(urlresolvers.get_script_prefix()), \
+    script_prefix = prefix or urlresolvers.get_script_prefix()
+    assert url.startswith(script_prefix), \
             "URL must start with SCRIPT_PREFIX: %s" % url
-    pos = len(urlresolvers.get_script_prefix()) - 1
+    pos = len(script_prefix) - 1
     return url[:pos], url[pos:]
 
-def add_script_prefix(path):
+def add_script_prefix(path, prefix=None):
     """
     Prepends the SCRIPT_PREFIX to a path.
     """
-
-    return ''.join([urlresolvers.get_script_prefix(), path[1:]])
+    script_prefix = prefix or urlresolvers.get_script_prefix()
+    return ''.join([script_prefix, path[1:]])
