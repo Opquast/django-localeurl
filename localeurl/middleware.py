@@ -37,7 +37,7 @@ class LocaleURLMiddleware(object):
             raise django.core.exceptions.MiddlewareNotUsed()
 
     def process_request(self, request):
-        hostname = request.get_host()
+        hostname = request.get_host().split(":")[0]
 
         locale, path = utils.strip_path(request.path_info)
         if localeurl_settings.USE_SESSION and not locale:
