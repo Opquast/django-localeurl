@@ -38,6 +38,15 @@ def is_urlconf_independent(urlconf):
         deactivated = False
     return deactivated
 
+def is_restricted_path(path):
+    """
+    Returns whether the urlconf is locale-independent.
+    """
+    for regex in localeurl_settings.LOCALE_RESTICTED_URLS:
+        if regex.search(path):
+            return True
+    return False
+
 def strip_path(path):
     """
     Separates the locale prefix from the rest of the path. If the path does not
@@ -73,9 +82,14 @@ def locale_path(path, locale='', host=None, urlconf=None):
     Generate the localeurl-enabled path from a path without locale prefix. If
     the locale is empty settings.LANGUAGE_CODE is used.
     """
+    if settings.LOCALE_RESTICT_MODE:
+        if not is_restricted_path(path):
+            return path
+
     locale = supported_language(locale)
     if not locale:
         locale = supported_language(settings.LANGUAGE_CODE)
+
     if is_host_independent(host) and is_urlconf_independent(urlconf):
         return path
     elif is_locale_independent(path):
