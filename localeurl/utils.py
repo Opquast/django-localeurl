@@ -84,18 +84,18 @@ def locale_path(path, locale='', host=None, urlconf=None):
     """
     if settings.LOCALE_RESTICT_MODE:
         if not is_restricted_path(path):
-            return path
+            return ''.join([u'/', path])
 
     locale = supported_language(locale)
     if not locale:
         locale = supported_language(settings.LANGUAGE_CODE)
 
     if is_host_independent(host) and is_urlconf_independent(urlconf):
-        return path
+        return ''.join([u'/', path])
     elif is_locale_independent(path):
-        return path
+        return ''.join([u'/', path])
     elif is_default_locale(locale) and not localeurl_settings.PREFIX_DEFAULT_LOCALE:
-        return path
+        return ''.join([u'/', path])
     else:
         return ''.join([u'/', locale, path])
 
