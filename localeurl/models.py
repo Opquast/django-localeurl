@@ -16,7 +16,7 @@ def reverse(*args, **kwargs):
             'locale', translation.get_language()))
     url = django_reverse(*args, **kwargs)
     stipped_prefix, path = utils.strip_script_prefix(url, prefix = prefix)
-    return utils.locale_url(path, locale, prefix = stipped_prefix, urlconf=urlconf)
+    return utils.locale_url(path, locale, prefix = prefix, urlconf=urlconf)
 
 django_reverse = None
 
