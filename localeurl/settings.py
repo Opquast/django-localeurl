@@ -27,9 +27,9 @@ LOCALE_REDIRECT_PERMANENT = getattr(settings, 'LOCALE_REDIRECT_PERMANENT', True)
 
 LOCALE_DEPENDENT_HOSTS = getattr(settings, 'LOCALE_DEPENDENT_HOSTS', [])
 
-LOCALE_DEPENDENT_URLCONFS = getattr(settings, 'LOCALE_DEPENDENT_URLCONFS', [])
+LOCALEURL_DEPENDENT_URLCONFS = getattr(settings, 'LOCALEURL_DEPENDENT_URLCONFS', [])
 
-LOCALE_RESTICT_MODE = getattr(settings, 'LOCALE_RESTICT_MODE', False)
+LOCALEURL_RESTRICT_MODE = getattr(settings, 'LOCALEURL_RESTRICT_MODE', False)
 
-LOCALE_RESTICTED_URLS = [re.compile(p) for p in
-                         getattr(settings, 'LOCALE_RESTICTED_URLS', [])]
+LOCALEURL_RESTRICTED_URLS = [re.compile(p) for p in
+                             getattr(settings, 'LOCALEURL_RESTRICTED_URLS', [])]
