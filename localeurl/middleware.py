@@ -7,6 +7,7 @@ from django.utils.translation.trans_real import parse_accept_lang_header
 from localeurl import settings as localeurl_settings
 # Importing models ensures that reverse() is patched soon enough. Refs #5.
 from localeurl import utils
+from django.core.urlresolvers import get_urlconf
 
 # Make sure the default language is in the list of supported languages
 assert utils.supported_language(settings.LANGUAGE_CODE) is not None, \
@@ -53,7 +54,13 @@ class LocaleURLMiddleware(object):
                 )
             if accept_langs:
                 locale = accept_langs[0]
-        locale_path = utils.locale_path(path, locale, host = hostname)
+
+        if hasattr(request, 'urlconf') and request.urlconf is not None:
+            urlconf = request.urlconf
+        else:
+            urlconf = get_urlconf()
+
+        locale_path = utils.locale_path(path, locale, host=hostname, urlconf=urlconf)
         # locale case might be different in the two paths, that doesn't require
         # a redirect (besides locale they'll be identical anyway)
         if locale_path.lower() != request.path_info.lower():
