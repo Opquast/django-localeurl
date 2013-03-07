@@ -31,5 +31,10 @@ LOCALEURL_DEPENDENT_URLCONFS = getattr(settings, 'LOCALEURL_DEPENDENT_URLCONFS',
 
 LOCALEURL_RESTRICT_MODE = getattr(settings, 'LOCALEURL_RESTRICT_MODE', False)
 
-LOCALEURL_RESTRICTED_URLS = [re.compile(p) for p in
-                             getattr(settings, 'LOCALEURL_RESTRICTED_URLS', [])]
+LOCALEURL_RESTRICTED_URLS = {'ALL': []}
+customs_restricted_urls = getattr(settings, 'LOCALEURL_RESTRICTED_URLS', {'*':[]})
+for key in customs_restricted_urls.keys():
+    if key == '*':
+        LOCALEURL_RESTRICTED_URLS['ALL'] = [re.compile(p) for p in customs_restricted_urls['*']]
+    else:
+        LOCALEURL_RESTRICTED_URLS[key] = [re.compile(p) for p in customs_restricted_urls[key]]
