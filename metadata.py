@@ -30,5 +30,5 @@ except IOError:
 name = 'localeurl'
 authors = 'Joost Cassee, Artiom Diomin and Carl Meyer'
 copyright_years = '2008-2010'
-version = '1.5.temesis_%s' % hgrev
+version = '1.6.temesis_%s' % hgrev
 release = version
