@@ -3,6 +3,8 @@ from django.template import Node, Token, TemplateSyntaxError
 from django.template import resolve_variable, defaulttags
 from django.template.defaultfilters import stringfilter
 from django.utils.functional import wraps
+from django.core.urlresolvers import get_urlconf
+from django.conf import settings
 
 from localeurl import utils
 
@@ -85,3 +87,31 @@ locale_url_wrapper = wraps(locale_url)(locale_url_wrapper)
 
 
 register.tag('locale_url', locale_url_wrapper)
+
+@register.simple_tag(takes_context=True)
+def alternate_languages(context):
+    request = context['request']
+
+    is_lang = False
+    lang_list = []
+    alternate = ""
+    for lang in settings.LANGUAGES:
+        lang_regex = ("/%s/") % lang[0]
+        if lang_regex in request.path:
+            is_lang = True
+        else:
+            lang_list.append(lang[0])
+
+    if hasattr(request, 'urlconf') and request.urlconf is not None:
+            urlconf = request.urlconf
+    else:
+        urlconf = get_urlconf()
+    locale, path = utils.strip_path(request.path_info)
+    hostname = request.get_host().split(":")[0]
+
+    if is_lang:
+        for lang in lang_list:
+            locale_path = utils.locale_path(path, lang, host=hostname, urlconf=urlconf)
+            alternate += ('<link rel="alternate" hreflang="%s" href="http://%s%s" />\n') % (lang, hostname ,locale_path)
+    return alternate
+
